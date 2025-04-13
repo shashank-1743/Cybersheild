@@ -10,8 +10,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 const nodeEnv = process.env.NODE_ENV || 'development';
 
+// CORS configuration
+app.use(cors({
+  origin: ['https://cybersheild.netlify.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(morgan('dev')); // Logging middleware
 
