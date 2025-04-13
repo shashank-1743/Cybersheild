@@ -1,0 +1,41 @@
+{
+  "name": "my-bootstrap-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "framer-motion": "^12.4.3",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.7.0",
+    "react-countup": "^6.5.3",
+    "react-dom": "^19.0.0",
+    "react-icons": "^4.7.1",
+    "react-router-dom": "^7.1.5",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
+    "dev": "react-scripts start"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
