@@ -12,7 +12,7 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 
 // CORS configuration
 app.use(cors({
-  origin: ['https://cybersheild.netlify.app', 'http://localhost:3000'],
+  origin: ['https://cybersheild-2.netlify.app', 'http://localhost:3000'],
   methods: ['GET', 'POST'],
   credentials: true
 }));
