@@ -35,7 +35,8 @@ function HaveProblem() {
     setResponse(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/report', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
