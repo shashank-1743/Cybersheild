@@ -66,21 +66,50 @@ Time: ${incidentData.incidentTime || 'Not specified'}
 Location: ${incidentData.location || 'Not specified'}
 ---
 
-Provide a clear, actionable analysis with the following sections:
-
-1. Summary (2-3 sentences)
-2. Applicable Laws and Sections (with simplified explanations)
-3. Immediate Steps to Take
-4. Where to Report (with contact details)
-5. Prevention Tips
-
-Format the response in clean HTML with:
+Please provide a comprehensive analysis in clean HTML with:
 - <h3> for section headings
-- <ul> for bullet points
+- <ul> or <ol> for bullet points
 - <p> for paragraphs
 - Proper HTML links where relevant
 
-Keep all explanations simple, clear, and free of technical jargon. Focus on practical, actionable advice.`;
+Structure your response in the following format:
+
+1. <h3>Summary</h3>
+   <p>Provide a brief summary (2-3 sentences) of the incident.</p>
+
+2. <h3>Applicable Laws and Sections</h3>
+   <ul>
+     <li>List relevant Indian cyber laws (e.g., IT Act, IPC sections)</li>
+     <li>Provide simplified explanations of each section</li>
+     <li>Mention potential penalties under each section</li>
+   </ul>
+
+3. <h3>Immediate Steps to Take</h3>
+   <ul>
+     <li>Step-by-step guide on what to do next</li>
+     <li>Evidence preservation tips</li>
+     <li>Documentation requirements</li>
+   </ul>
+
+4. <h3>Where to Report</h3>
+   <ul>
+     <li>Include relevant authorities and their contact details</li>
+     <li>List online portals (e.g., <a href="https://cybercrime.gov.in" target="_blank">cybercrime.gov.in</a>)</li>
+     <li>Mention local police or cyber cells</li>
+   </ul>
+
+5. <h3>Prevention Tips</h3>
+   <ul>
+     <li>Specific recommendations to prevent similar incidents</li>
+     <li>Cybersecurity best practices</li>
+     <li>Common warning signs to watch for</li>
+   </ul>
+
+Ensure all content is:
+- Simple and free of technical jargon
+- Focused on practical and actionable advice
+- Well-structured for easy reading`;
+
 
         try {
             const result = await model.generateContent(prompt);
