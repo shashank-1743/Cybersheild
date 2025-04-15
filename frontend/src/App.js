@@ -14,6 +14,9 @@ import FinancialSecurity from './pages/FinancialSecurity';
 import SocialMediaSafety from './pages/SocialMediaSafety';
 import DeviceSecurity from './pages/DeviceSecurity';
 import HaveProblem from './pages/HaveProblem';
+import ITAct from './pages/ITAct';
+import Penalties from './pages/Penalties';
+import DigitalRights from './pages/DigitalRights';
 import { trackPageView } from './utils/analytics';
 
 // Analytics wrapper component
@@ -60,6 +63,9 @@ function App() {
         <Route path="/safety/social" element={<SocialMediaSafety />} />
         <Route path="/safety/device" element={<DeviceSecurity />} />
         <Route path="/have-problem" element={<HaveProblem />} />
+        <Route path="/laws/it-act" element={<ITAct />} />
+        <Route path="/laws/penalties" element={<Penalties />} />
+        <Route path="/laws/rights" element={<DigitalRights />} />
       </Routes>
       <div 
         className="scroll-progress"
