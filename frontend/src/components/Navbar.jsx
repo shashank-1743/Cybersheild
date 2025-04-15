@@ -1,24 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navbar, Nav, Container, Button, NavDropdown } from 'react-bootstrap';
 import { FaExclamationTriangle, FaSignInAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { trackButtonClick } from '../utils/analytics';
+import AuthModal from './AuthModal';
 
 function NavigationBar() {
   const [user] = useAuthState(auth);
-
-  const signInWithGoogle = async () => {
-    try {
-      trackButtonClick('login_signup', { method: 'google' });
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-    }
-  };
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -98,7 +90,7 @@ function NavigationBar() {
               <Button 
                 variant="primary" 
                 className="ms-2 d-flex align-items-center"
-                onClick={signInWithGoogle}
+                onClick={() => setShowAuthModal(true)}
               >
                 <FaSignInAlt className="me-2" />
                 Login/Sign Up
@@ -107,6 +99,11 @@ function NavigationBar() {
           </Nav>
         </Navbar.Collapse>
       </Container>
+
+      <AuthModal 
+        show={showAuthModal} 
+        onHide={() => setShowAuthModal(false)} 
+      />
     </Navbar>
   );
 }
