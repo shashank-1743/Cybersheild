@@ -1,9 +1,39 @@
 import React from 'react';
 import { Navbar, Nav, Container, Button, NavDropdown } from 'react-bootstrap';
-import { FaExclamationTriangle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaExclamationTriangle, FaSignInAlt } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { trackButtonClick } from '../utils/analytics';
 
 function NavigationBar() {
+  const [user] = useAuthState(auth);
+  const navigate = useNavigate();
+
+  const signInWithGoogle = async () => {
+    try {
+      trackButtonClick('login_signup', { method: 'google' });
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      trackButtonClick('sign_out');
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const handleHaveProblemClick = () => {
+    trackButtonClick('have_problem', { user_id: user?.uid });
+  };
+
   return (
     <Navbar bg="light" expand="lg" sticky="top" className="shadow-sm">
       <Container>
@@ -49,15 +79,32 @@ function NavigationBar() {
             <Nav.Link as={Link} to="/faqs">FAQs</Nav.Link>
             <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
 
-            <Button 
-              variant="danger" 
-              className="ms-2 pulse-button d-flex align-items-center"
-              as={Link}
-              to="/have-problem"
-            >
-              <FaExclamationTriangle className="me-2" />
-              Have a Problem?
-            </Button>
+            {user ? (
+              <>
+                <NavDropdown title={user.displayName || 'User'} id="user-dropdown">
+                  <NavDropdown.Item onClick={handleSignOut}>Sign Out</NavDropdown.Item>
+                </NavDropdown>
+                <Button 
+                  variant="danger" 
+                  className="ms-2 pulse-button d-flex align-items-center"
+                  as={Link}
+                  to="/have-problem"
+                  onClick={handleHaveProblemClick}
+                >
+                  <FaExclamationTriangle className="me-2" />
+                  Have a Problem?
+                </Button>
+              </>
+            ) : (
+              <Button 
+                variant="primary" 
+                className="ms-2 d-flex align-items-center"
+                onClick={signInWithGoogle}
+              >
+                <FaSignInAlt className="me-2" />
+                Login/Sign Up
+              </Button>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

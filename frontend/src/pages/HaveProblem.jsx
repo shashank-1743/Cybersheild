@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import { FaShieldAlt, FaExclamationTriangle, FaFileAlt, FaSpinner } from 'react-icons/fa';
 import NavigationBar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { trackButtonClick } from '../utils/analytics';
 
 function HaveProblem() {
   const ref = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
+  const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,11 +30,25 @@ function HaveProblem() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+      setValidated(true);
+      return;
+    }
+
+    setValidated(true);
     setIsLoading(true);
     setError(null);
     setResponse(null);
+
+    trackButtonClick('submit_incident_report', {
+      incident_type: formData.incidentType,
+      has_evidence: !!formData.description
+    });
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -200,7 +216,7 @@ function HaveProblem() {
                 </Alert>
               )}
 
-              <Form className="incident-report-form" onSubmit={handleSubmit}>
+              <Form className="incident-report-form" onSubmit={handleSubmit} noValidate validated={validated}>
                 <Form.Group className="mb-4">
                   <Form.Label>Full Name (Optional)</Form.Label>
                   <Form.Control
