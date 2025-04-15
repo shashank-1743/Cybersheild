@@ -8,10 +8,54 @@ if (!process.env.GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+function cleanResponse(text) {
+    // Remove any leading/trailing whitespace
+    text = text.trim();
+
+    // Remove multiple consecutive newlines
+    text = text.replace(/\n{3,}/g, '\n\n');
+
+    // Remove any asterisks used for emphasis
+    text = text.replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1');
+
+    // Convert markdown-style links to HTML
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+    // Remove any "AI:" or "Assistant:" prefixes
+    text = text.replace(/^(AI:|Assistant:)\s*/gm, '');
+
+    // Clean up HTML tags
+    // Ensure proper spacing around HTML tags
+    text = text.replace(/>\s+</g, '><');
+    // Remove empty tags
+    text = text.replace(/<([^>]+)>\s*<\/\1>/g, '');
+
+    // Add proper spacing after periods and commas
+    text = text.replace(/\.(?=[A-Z])/g, '. ');
+    text = text.replace(/,(?=[^\s])/g, ', ');
+
+    // Format phone numbers consistently
+    text = text.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+    // Ensure proper spacing around list items
+    text = text.replace(/<li>/g, '\n<li>');
+    text = text.replace(/<\/li><li>/g, '</li>\n<li>');
+
+    // Remove any remaining unnecessary whitespace
+    text = text.replace(/\s+/g, ' ').trim();
+
+    // Re-add necessary newlines for readability
+    text = text.replace(/<\/h3>/g, '</h3>\n');
+    text = text.replace(/<\/p>/g, '</p>\n');
+    text = text.replace(/<\/ul>/g, '</ul>\n');
+    text = text.replace(/<\/ol>/g, '</ol>\n');
+
+    return text;
+}
+
 async function analyzeIncident(incidentData) {
     try {
-        // Use the correct free model: "gemini-2.0-flash-001"
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `Analyze the following cybersecurity incident in India:
 
@@ -22,38 +66,28 @@ Time: ${incidentData.incidentTime || 'Not specified'}
 Location: ${incidentData.location || 'Not specified'}
 ---
 
-Please provide a comprehensive analysis in the following format:
+Provide a clear, actionable analysis with the following sections:
 
-1. Applicable Laws and Sections:
-   - List relevant Indian cyber laws (IT Act, IPC sections)
-   - Brief explanation of each section
-   - Potential penalties under each section
+1. Summary (2-3 sentences)
+2. Applicable Laws and Sections (with simplified explanations)
+3. Immediate Steps to Take
+4. Where to Report (with contact details)
+5. Prevention Tips
 
-2. Immediate Actions:
-   - Step-by-step guide on what to do next
-   - Evidence preservation tips
-   - Documentation requirements
+Format the response in clean HTML with:
+- <h3> for section headings
+- <ul> for bullet points
+- <p> for paragraphs
+- Proper HTML links where relevant
 
-3. Where to Report:
-   - Relevant authorities (with contact details)
-   - Online portals
-   - Local cyber cells
-
-4. Prevention Tips:
-   - Specific recommendations to prevent similar incidents
-   - Security best practices
-   - Warning signs to watch for
-
-Format the response with HTML for better presentation, using <h3> for main sections and <ul> or <ol> for lists. Keep explanations simple and actionable.`;
+Keep all explanations simple, clear, and free of technical jargon. Focus on practical, actionable advice.`;
 
         try {
             const result = await model.generateContent(prompt);
             const response = await result.response;
-            return response.text();
+            return cleanResponse(response.text());
         } catch (apiError) {
             console.error('Gemini API Error:', apiError);
-            
-            // Fallback response in case of API error
             return `<h3>Basic Analysis</h3>
             <p>We're currently experiencing technical difficulties with our AI analysis system. Here are some general steps you can take:</p>
             
