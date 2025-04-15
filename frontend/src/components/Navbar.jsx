@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navbar, Nav, Container, Button, NavDropdown } from 'react-bootstrap';
 import { FaExclamationTriangle, FaSignInAlt } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
@@ -9,7 +9,6 @@ import { trackButtonClick } from '../utils/analytics';
 
 function NavigationBar() {
   const [user] = useAuthState(auth);
-  const navigate = useNavigate();
 
   const signInWithGoogle = async () => {
     try {
