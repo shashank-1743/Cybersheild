@@ -5,6 +5,7 @@ import { FaShieldAlt, FaExclamationTriangle, FaFileAlt, FaSpinner } from 'react-
 import NavigationBar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { trackButtonClick } from '../utils/analytics';
+import { auth } from '../firebase';
 
 function HaveProblem() {
   const ref = useRef(null);
@@ -12,6 +13,9 @@ function HaveProblem() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [validated, setValidated] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [userName, setUserName] = useState('');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,6 +25,26 @@ function HaveProblem() {
     description: '',
     consent: false
   });
+
+  // Get user's name when component mounts
+  React.useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserName(user.displayName || 'User');
+        setFormData(prev => ({
+          ...prev,
+          name: user.displayName || '',
+          email: user.email || ''
+        }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleAnalyzeClick = () => {
+    setShowForm(true);
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -67,16 +91,17 @@ function HaveProblem() {
       }
 
       setResponse(data);
-      // Clear form after successful submission
-      setFormData({
-        name: '',
-        email: '',
+      setShowForm(false); // Hide form after successful submission
+
+      // Clear form data except name and email
+      setFormData(prev => ({
+        ...prev,
         incidentTime: '',
         location: '',
         incidentType: '',
         description: '',
         consent: false
-      });
+      }));
 
       // Scroll to response
       const responseElement = document.getElementById('analysis-response');
@@ -208,124 +233,143 @@ function HaveProblem() {
               viewport={{ once: true }}
               className="have-problem-section"
             >
-              <h2 className="mb-4">Incident Report Form</h2>
+              <h2 className="mb-4">Welcome, {userName}!</h2>
 
-              {error && (
-                <Alert variant="danger" className="error-state">
-                  {error}
-                </Alert>
-              )}
-
-              <Form className="incident-report-form" onSubmit={handleSubmit} noValidate validated={validated}>
-                <Form.Group className="mb-4">
-                  <Form.Label>Full Name (Optional)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your name"
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>Email Address (Optional)</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email"
-                  />
-                  <Form.Text className="text-muted">
-                    We'll send you a copy of the analysis to this email.
-                  </Form.Text>
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>When did the incident occur?*</Form.Label>
-                  <Form.Control
-                    type="datetime-local"
-                    name="incidentTime"
-                    value={formData.incidentTime}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>Location</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="City, State"
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>Incident Type</Form.Label>
-                  <Form.Select
-                    name="incidentType"
-                    value={formData.incidentType}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select incident type</option>
-                    <option value="financial_fraud">Financial Fraud</option>
-                    <option value="cyberbullying">Cyberbullying</option>
-                    <option value="identity_theft">Identity Theft</option>
-                    <option value="hacking">Hacking</option>
-                    <option value="phishing">Phishing</option>
-                    <option value="data_breach">Data Breach</option>
-                    <option value="other">Other</option>
-                  </Form.Select>
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>Detailed Description*</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={6}
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Please describe what happened in detail. Include any relevant information that might help us analyze your situation."
-                    required
-                  />
-                  <Form.Text className="text-muted">
-                    The more details you provide, the better we can assist you.
-                  </Form.Text>
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Check
-                    type="checkbox"
-                    name="consent"
-                    checked={formData.consent}
-                    onChange={handleChange}
-                    label="I consent to sharing this information for analysis and assistance purposes."
-                    required
-                  />
-                </Form.Group>
-
-                <div className="d-grid">
-                  <Button 
-                    variant="primary" 
+              {!showForm && !response && (
+                <div className="text-center mb-4">
+                  <Button
+                    variant="primary"
                     size="lg"
-                    type="submit"
-                    disabled={isLoading}
+                    onClick={handleAnalyzeClick}
+                    className="analyze-button"
                   >
-                    {isLoading ? (
-                      <>
-                        <FaSpinner className="me-2 spinner" /> Analyzing...
-                      </>
-                    ) : (
-                      'Submit Report'
-                    )}
+                    Analyze Your Query
                   </Button>
                 </div>
-              </Form>
+              )}
+
+              {showForm && (
+                <>
+                  <h3 className="mb-4">Incident Report Form</h3>
+
+                  {error && (
+                    <Alert variant="danger" className="error-state">
+                      {error}
+                    </Alert>
+                  )}
+
+                  <Form className="incident-report-form" onSubmit={handleSubmit} noValidate validated={validated}>
+                    <Form.Group className="mb-4">
+                      <Form.Label>Full Name (Optional)</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter your name"
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Label>Email Address (Optional)</Form.Label>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                      />
+                      <Form.Text className="text-muted">
+                        We'll send you a copy of the analysis to this email.
+                      </Form.Text>
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Label>When did the incident occur?*</Form.Label>
+                      <Form.Control
+                        type="datetime-local"
+                        name="incidentTime"
+                        value={formData.incidentTime}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Label>Location</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder="City, State"
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Label>Incident Type</Form.Label>
+                      <Form.Select
+                        name="incidentType"
+                        value={formData.incidentType}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select incident type</option>
+                        <option value="financial_fraud">Financial Fraud</option>
+                        <option value="cyberbullying">Cyberbullying</option>
+                        <option value="identity_theft">Identity Theft</option>
+                        <option value="hacking">Hacking</option>
+                        <option value="phishing">Phishing</option>
+                        <option value="data_breach">Data Breach</option>
+                        <option value="other">Other</option>
+                      </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Label>Detailed Description*</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={6}
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        placeholder="Please describe what happened in detail. Include any relevant information that might help us analyze your situation."
+                        required
+                      />
+                      <Form.Text className="text-muted">
+                        The more details you provide, the better we can assist you.
+                      </Form.Text>
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Check
+                        type="checkbox"
+                        name="consent"
+                        checked={formData.consent}
+                        onChange={handleChange}
+                        label="I consent to sharing this information for analysis and assistance purposes."
+                        required
+                      />
+                    </Form.Group>
+
+                    <div className="d-grid">
+                      <Button 
+                        variant="primary" 
+                        size="lg"
+                        type="submit"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <FaSpinner className="me-2 spinner" /> Analyzing...
+                          </>
+                        ) : (
+                          'Submit Report'
+                        )}
+                      </Button>
+                    </div>
+                  </Form>
+                </>
+              )}
 
               {isLoading && (
                 <div className="incident-form-loading">
@@ -334,22 +378,34 @@ function HaveProblem() {
                 </div>
               )}
 
-              {response && (
-                <div id="analysis-response" className="analysis-response">
-                  <h2 className="mb-4">Analysis Results</h2>
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: response.data.analysis 
-                    }} 
-                  />
-                  <Button 
-                    variant="outline-primary" 
-                    onClick={() => window.print()}
-                    className="mt-4 print-button"
-                  >
-                    Print Analysis
-                  </Button>
-                </div>
+              {response && !showForm && (
+                <>
+                  <div className="text-center mb-4">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={handleAnalyzeClick}
+                      className="analyze-button"
+                    >
+                      Submit Another Query
+                    </Button>
+                  </div>
+                  <div id="analysis-response" className="analysis-response">
+                    <h3 className="mb-4">Analysis Results</h3>
+                    <div 
+                      dangerouslySetInnerHTML={{ 
+                        __html: response.data.analysis 
+                      }} 
+                    />
+                    <Button 
+                      variant="outline-primary" 
+                      onClick={() => window.print()}
+                      className="mt-4 print-button"
+                    >
+                      Print Analysis
+                    </Button>
+                  </div>
+                </>
               )}
 
               <Alert variant="info" className="mt-4">
