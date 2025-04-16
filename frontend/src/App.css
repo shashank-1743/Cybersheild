@@ -1521,3 +1521,72 @@
     padding: 0.75rem;
   }
 }
+
+/* Legal Documents Page Styles */
+.legal-documents-container {
+  min-height: 100vh;
+  position: relative;
+  background-color: #0a192f;
+  padding-top: 80px;
+}
+
+.search-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-input {
+  padding-left: 45px !important;
+  height: 50px;
+  border-radius: 25px;
+  border: 1px solid #e0e0e0;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(10, 25, 47, 0.15);
+  border-color: #0a192f;
+}
+
+.legal-document-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.legal-document-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.document-type-badge {
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Make headings in legal documents page white */
+.legal-documents-container h2 {
+  color: white;
+}
+
+.legal-documents-container h2 svg {
+  color: #4a90e2;
+}

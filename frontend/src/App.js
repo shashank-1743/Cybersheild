@@ -17,6 +17,7 @@ import HaveProblem from './pages/HaveProblem';
 import ITAct from './pages/ITAct';
 import Penalties from './pages/Penalties';
 import DigitalRights from './pages/DigitalRights';
+import LegalDocuments from './pages/LegalDocuments';
 import { trackPageView } from './utils/analytics';
 
 // Analytics wrapper component
@@ -56,6 +57,7 @@ function App() {
         <Route path="/helpline" element={<Helpline />} />
         <Route path="/resources/helplines" element={<Navigate to="/helpline" replace />} />
         <Route path="/resources/portals" element={<GovernmentPortals />} />
+        <Route path="/resources/documents" element={<LegalDocuments />} />
         <Route path="/faqs" element={<Faqs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/safety/personal" element={<PersonalSafety />} />
